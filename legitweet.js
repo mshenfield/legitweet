@@ -106,19 +106,18 @@ function legitweet(message, sunlightApiKey, hashtags, url, titles) {
   var legitweetPromise = getRepresentativeTwitterHandles(sunlightApiKey)
     .then(function(twitterHandles){
       if (!titles) {
-        titles = [ALL];
+        titles = ['all'];
       }
-
       // For each title, create a joined list of "@" handel
       var twitterHandlesString = titles.map(function(title) {
-        twitterHandlesForTitleString = twitterHandles[title].map(function(handle) {
+        return twitterHandles[title].map(function(handle) {
           return '@' + handle;
         }).join(' ');
       }).join(' ');
 
       var TWEET_BASE_URL = 'https://twitter.com/intent/tweet?'
       var tweetText = message + ' ' + twitterHandlesString;
-      var tweetUrl = TWEET_BASE_URL + 'text=' + encodeUri(tweetText);
+      var tweetUrl = TWEET_BASE_URL + 'text=' + encodeURI(tweetText);
       if (url) {
         tweetUrl += '&amp;url=' + url;
       }
@@ -143,8 +142,7 @@ function getRepresentativeTwitterHandles(sunlightApiKey) {
   var SUNLIGHT_CONGRESS_API_URL = 'https://congress.api.sunlightfoundation.com'
   var SUNLIGHT_CONGRESS_LOCATE_URL = SUNLIGHT_CONGRESS_API_URL
     + '/legislators/locate?'
-  var FREEGEOIP_GEOINFO_FOR_REQUESTING_IP = 'http://freegeoip.net/json'
-  var twitterHandlesPromise = fetch(FREEGEOIP_GEOINFO_FOR_REQUESTING_IP)
+  var twitterHandlesPromise = fetch('http://freegeoip.net/json/')
     .then(checkStatus)
     .then(asJSON)
     .then(function(geo) {
@@ -161,7 +159,9 @@ function getRepresentativeTwitterHandles(sunlightApiKey) {
           return {};
       }
 
-      var twitterHandles = {};
+      var twitterHandles = {
+        'all': [],
+      };
 
       congressApiResponse['results'].forEach(function(legislator) {
         if (legislator['twitter_id'] !== 'null') {
@@ -176,7 +176,7 @@ function getRepresentativeTwitterHandles(sunlightApiKey) {
       // All should be from same state, so grab the first one
       var STATE = congressApiResponse['results'][0]['state']
       twitterHandles['Gov'] = GOVERNORS[STATE][2];
-      twitterHandles['all'].push(twitterIds['Gov'])
+      twitterHandles['all'].push(twitterHandles['Gov']);
 
       return twitterHandles;
     });
