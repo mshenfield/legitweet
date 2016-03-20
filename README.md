@@ -1,8 +1,7 @@
 # legitweet
-Easily create a locale aware tweet for your cause. Inspired by the tweet card at [Stop Daylight Savings Time](stopdst.com).
+Easily create a locale aware tweet for your cause. Inspired by the tweet card at [Stop Daylight Savings Time](https://stopdst.com/).
 
-`legitweet` use's the IP address of a visitor, and Sunlight Foundations Congress API to generate a tweet
-to your visitor's national representatives.
+`legitweet` use's the IP address of a visitor, and Sunlight Foundations Congress API to generate a tweet to your visitor's Congressmen, Senators, and/or Governor.
 
 This project uses [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) which is only supported in later versions of Firefox and Chrome. Consider using this [fetch pollyfill](https://github.com/github/fetch) for cross browser support.
 
@@ -24,17 +23,18 @@ Include a script tag and `legitweet` is ready to use.
 </script>
 ```
 
-We recommend treating the location aware handles as a progressive enhancement - that is make sure your site still functions if you don't have this! For example, initialize your tweet button or card with your message and hashtags, and append the `twitterHandlesString` to the resulting message or button url when `legitweet` returns. If you are relying on this information, make sure to use `catch` to appropriately handle any exceptions.
+We recommend treating the location aware handles as a progressive enhancement - that is make sure your site still functions if you don't have this! For example, initialize your tweet button or card with your message and hashtags, and append the `twitterHandlesString` to the resulting message or button url when `legitweet` resolves. If you are relying on this information, make sure to use `catch` to appropriately handle any exceptions.
 
 ## API
 The source code is only one file. Check it out for detailed API information.
 
 ## Services
-This use two free projects maintained through donations. If you like what they do, consider giving time, money, or
-development effort:
+This use two free projects maintained through donations. If you like what they do, consider giving time, money, or development effort:
 
 * [Free GeoIP](http://freegeoip.net)
 * [Sunlight Foundation](https://sunlightfoundation.com)
+
+freegeoip.net limits a site to 10,000 requests/hour. If you think you'll go over that limit, consider installing and running your own copy of the project. Change the `geoIPEndpoint` in options argument to `legitweet` to point it to your new location, and make sure this is the `/json/` endpoint.
 
 ##  License
 [MIT](https://opensource.org/licenses/MIT)
