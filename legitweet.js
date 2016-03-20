@@ -86,13 +86,17 @@ var ALL = 'All';
     Internally this function uses the Congress API V3 to retrieve twitter
     handles for a user's representatives. Request one here if you don't already
     have it: https://sunlightfoundation.com/api/accounts/register/
-  @param {...string} [hashtags] An optionallist of string hashtags you want to
-    include in your tweet, e.g. ['vote', 'transparency']
-  @param {string} [url] An optional url of your advocacy site to include in the
-    tweet
-  @param {...string} [titles] An optional list of the titles of representatives
-    you'd like included in the list of twitter handles. Accepted values are
-    "Sen", "Rep", or "Gov". If empty, all types will be included.
+  @param {Object} [options] an object containing extra configuration options
+    @param {...string} [hashtags] An optionallist of string hashtags you want to
+      include in your tweet, e.g. ['vote', 'transparency']
+    @param {string} [url] An optional url of your advocacy site to include in the
+      tweet
+    @param {...string} [titles] An optional list of the titles of representatives
+      you'd like included in the list of twitter handles. Accepted values are
+      "Sen", "Rep", or "Gov". If empty, all types will be included.
+    @param {string} freegeoipURL The url of your custom freegeoip server. If
+      not present, uses the public api at freegeoip.net, which is rate limite
+      at 10,000 requests/hour
 
   @returns {Promise<object>} Returns a Promise that resolves to an object
     with the following keys.
@@ -102,8 +106,10 @@ var ALL = 'All';
       are treated as a separate entity by the Twitter API.
     twitterHandlesString: A string containing the concatenated twitter handles
  */
-function legitweet(message, sunlightApiKey, hashtags, url, titles) {
-  var legitweetPromise = getRepresentativeTwitterHandles(sunlightApiKey)
+function legitweet(message, sunlightApiKey, options) {
+  options = options || {}
+  var titles = options.titles;
+  var legitweetPromise = getRepresentativeTwitterHandles(sunlightApiKey, options)
     .then(function(twitterHandles){
       if (!titles) {
         titles = ['all'];
@@ -118,11 +124,11 @@ function legitweet(message, sunlightApiKey, hashtags, url, titles) {
       var TWEET_BASE_URL = 'https://twitter.com/intent/tweet?'
       var tweetText = message + ' ' + twitterHandlesString;
       var tweetUrl = TWEET_BASE_URL + 'text=' + encodeURI(tweetText);
-      if (url) {
-        tweetUrl += '&amp;url=' + url;
+      if (options.url) {
+        tweetUrl += '&amp;url=' + options.url;
       }
-      if (hashtags) {
-        tweetUrl += '&amp;hashtags=' + hastags.join(',');
+      if (options.hashtags) {
+        tweetUrl += '&amp;hashtags=' + options.hashtags.join(',');
       }
       return {
         'tweetUrl': tweetUrl,
@@ -138,11 +144,12 @@ function legitweet(message, sunlightApiKey, hashtags, url, titles) {
 Return the twitter handles for the site visitor's national representatives,
 based on their IP address.
  */
-function getRepresentativeTwitterHandles(sunlightApiKey) {
+function getRepresentativeTwitterHandles(sunlightApiKey, options) {
+  var FREEGEOIP_URL = options.freegeoipURL || 'http://freegeoip.net/json/'
   var SUNLIGHT_CONGRESS_API_URL = 'https://congress.api.sunlightfoundation.com'
   var SUNLIGHT_CONGRESS_LOCATE_URL = SUNLIGHT_CONGRESS_API_URL
     + '/legislators/locate?'
-  var twitterHandlesPromise = fetch('http://freegeoip.net/json/')
+  var twitterHandlesPromise = fetch(FREEGEOIP_URL)
     .then(checkStatus)
     .then(asJSON)
     .then(function(geo) {
